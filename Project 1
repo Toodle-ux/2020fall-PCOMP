@@ -1,0 +1,158 @@
+#include <MIDIUSB.h>
+#include <pitchToNote.h>
+
+const int threshold = 100;
+int notes[] = {
+pitchC5+1, pitchD5, pitchE5, pitchF5+1, pitchG5+1, pitchG5+2, pitchG5+4, pitchG5+6};
+int lastKeyNote[] = {0,0,0,0,0,0,0,0};
+int keyNote = 0;
+
+void setup() {
+  Serial.begin(9600);       // initialize serial communications
+}
+
+// send a 3-byte midi message
+void midiCommand(byte cmd, byte data1, byte  data2) {
+  Serial.write(cmd);     // command byte (should be > 127)
+  Serial.write(data1);   // data byte 1 (should be < 128)
+  Serial.write(data2);   // data byte 2 (should be < 128)
+  // First parameter is the event type (top 4 bits of the command byte).
+  // Second parameter is command byte combined with the channel.
+  // Third parameter is the first data byte
+  // Fourth parameter second data byte
+
+  midiEventPacket_t midiMsg = {cmd >> 4, cmd, data1, data2};
+  MidiUSB.sendMIDI(midiMsg);
+}
+
+void loop() {
+  int thisRead=analogRead(0);
+  if (thisRead < 140) {
+    keyNote = 1; 
+    if (keyNote != lastKeyNote[0]){
+      // play the note corresponding to this sensor:
+      midiCommand(0x90, notes[0], 0x7F);
+    }
+  }
+  else{
+    keyNote = 0;
+    // turn the note off:
+    if (keyNote != lastKeyNote[0]){
+      midiCommand(0x80, notes[0], 0);
+    }
+  }
+  lastKeyNote[0] = keyNote;
+  thisRead = analogRead(1);
+  if (thisRead < 100) {
+    keyNote = 1;
+    if (keyNote != lastKeyNote[1]){
+      // play the note corresponding to this sensor:
+      midiCommand(0x90, notes[1], 0x7F);
+    }
+  }
+  else{
+    keyNote = 0;
+    if (keyNote != lastKeyNote[1]){
+      // turn the note off:
+      midiCommand(0x80, notes[1], 0);
+    }
+  }
+  lastKeyNote[1] = keyNote;
+  thisRead=analogRead(2);
+  if (thisRead < 120) {
+    keyNote = 1;
+    if (keyNote != lastKeyNote[2]){
+      // play the note corresponding to this sensor:
+      midiCommand(0x90, notes[2], 0x7F);
+    }
+  }
+  else{
+    keyNote = 0;
+    if (keyNote != lastKeyNote[2]){
+      // turn the note off:
+      midiCommand(0x80, notes[2], 0);
+    }
+  }
+  lastKeyNote[2] = keyNote;
+  thisRead=analogRead(3);
+  if (thisRead < 220) {
+    keyNote = 1;
+    if (keyNote != lastKeyNote[3]){
+      // play the note corresponding to this sensor:
+      midiCommand(0x90, notes[3], 0x7F);
+    }
+  }
+  else{
+    keyNote = 0;
+    if (keyNote != lastKeyNote[3]){
+      // turn the note off:
+      midiCommand(0x80, notes[3], 0);
+    }
+  }
+  lastKeyNote[3] = keyNote;
+  thisRead=analogRead(4);
+  if (thisRead < 750) {
+    keyNote = 1; 
+    if (keyNote != lastKeyNote[4]){
+      // play the note corresponding to this sensor:
+      midiCommand(0x90, notes[4], 0x7F);
+    }
+  }
+  else{
+    keyNote = 0;
+    if (keyNote != lastKeyNote[4]){
+      // turn the note off:
+      midiCommand(0x80, notes[4], 0);
+    }
+  }
+  lastKeyNote[4] = keyNote;
+  thisRead=analogRead(5);
+  if (thisRead < 725) {
+    keyNote = 1;
+    if (keyNote != lastKeyNote[5]){
+      // play the note corresponding to this sensor:
+      midiCommand(0x90, notes[5], 0x7F);
+    }
+  }
+  else{
+    keyNote = 0;
+    if (keyNote != lastKeyNote[5]){
+      // turn the note off:
+      midiCommand(0x80, notes[5], 0);
+    }
+  }
+  lastKeyNote[5] = keyNote;
+  thisRead=analogRead(6);
+  if (thisRead < 120) {
+    keyNote = 1;
+    if (keyNote != lastKeyNote[6]){
+      // play the note corresponding to this sensor:
+      midiCommand(0x90, notes[6], 0x7F);
+    }
+  }
+  else{
+    keyNote = 0;
+    if (keyNote != lastKeyNote[6]){
+      // turn the note off:
+      midiCommand(0x80, notes[6], 0);
+    }
+  }
+  lastKeyNote[6] = keyNote;
+  thisRead=analogRead(7);
+  if (thisRead < 100) {
+    keyNote = 1;
+    if (keyNote != lastKeyNote[7]){
+      // play the note corresponding to this sensor:
+      midiCommand(0x90, notes[7], 0x7F);
+    }
+  }
+  else{
+    keyNote = 0;
+    if (keyNote != lastKeyNote[7]){
+      // turn the note off:
+      midiCommand(0x80, notes[7], 0);
+    }
+  }
+  lastKeyNote[7] = keyNote;
+  delay(10);
+}
