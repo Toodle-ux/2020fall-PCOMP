@@ -1,0 +1,114 @@
+#include <Servo.h> 
+Servo blackChoco; 
+Servo whiteChoco;
+
+int FSR = 0;
+int lastFSR = 0;
+int tapCount = 0;
+int tapTime = 0;
+int lastTapTime = 0;
+int timeSum = 0;
+int tapFrequency = -1;
+int highest = 0;
+int posStart = 0;
+int posEnd = 90;
+
+// make chocolate according to different mood 
+void anxious(){
+//  delay(300);
+  blackChoco.write(posStart);
+  whiteChoco.write(posStart);
+  delay(300);
+  blackChoco.write(posEnd);
+  whiteChoco.write(posEnd);
+  // reset the program after making the chocolate
+  tapCount = 0;
+  timeSum = 0;
+  tapTime = 0;
+  lastTapTime = 0;
+  highest = 0;
+  tapFrequency = -1;
+}
+
+void angry(){
+  blackChoco.write(posStart);
+  delay(300);
+  blackChoco.write(posEnd);
+  tapCount = 0;
+  timeSum = 0;
+  tapTime = 0;
+  lastTapTime = 0;
+  highest = 0;
+  tapFrequency = -1;
+}
+
+void sad(){
+  whiteChoco.write(posStart);
+  delay(300);
+  whiteChoco.write(posEnd);
+  tapCount = 0;
+  timeSum = 0;
+  tapTime = 0;
+  lastTapTime = 0;
+  highest = 0;
+  tapFrequency = -1;
+}
+
+void setup() {
+  Serial.begin(9600);
+  blackChoco.attach(9);
+  whiteChoco.attach(7);
+}
+
+void loop() {
+  FSR = analogRead(A0);
+  // if two successive readings have a significant difference, that means one tapping
+  if (FSR > highest){
+    highest = FSR;
+  }
+  if (FSR - lastFSR > 200){
+    tapCount = tapCount + 1;
+    // record the tap time
+    tapTime = millis() / 100;
+    // if no tapping for more than 10s, restart the program
+//    if (tapTime - lastTapTime > 100){
+//      tapCount = 0;
+//      timeSum = 0;
+//    }
+    // calculate the total tapping time only when successive tapping is detected
+    // the total tapping time equals to the sum of intervals between tappings
+    if (lastTapTime != 0){
+      timeSum = timeSum + tapTime - lastTapTime;
+    }
+    lastTapTime = tapTime;
+  }
+  // calculate the frequency in integers
+  if (millis() / 100 - lastTapTime > 100) {
+    tapFrequency = tapCount * 10 / timeSum;
+  }
+  
+  Serial.print(timeSum);
+  Serial.print('\t');
+  Serial.print(tapCount);
+  Serial.print('\t');
+  Serial.print(highest);
+  Serial.print('\t');
+  Serial.println(tapFrequency);
+  lastFSR = FSR;
+  
+  if (tapFrequency > 5){
+    anxious();
+  }
+  
+  if (tapFrequency >= 0 && tapFrequency <= 5){
+    if (highest > 600){
+      angry();
+    }
+    if (highest > 20 && highest <= 600){
+      sad();
+    }
+  }
+
+//  delay(40);
+  
+}
